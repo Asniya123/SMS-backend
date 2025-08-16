@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { IStudentController, IStudentService } from "../../interface/IStudent";
+import { ITutorController, ITutorService } from "../../interface/ITutor";
 import jwt from "jsonwebtoken";
 import { JwtPayload } from "jsonwebtoken";
 
-export default class StudentController implements IStudentController {
-  private studentService: IStudentService;
+export default class TutorController implements ITutorController {
+  private tutorService: ITutorService;
 
-  constructor(studentService: IStudentService) {
-    this.studentService = studentService;
+  constructor(tutorService:ITutorService) {
+    this.tutorService = tutorService;
   }
 
   async login(req: Request, res: Response): Promise<void> {
@@ -19,35 +19,22 @@ export default class StudentController implements IStudentController {
         return;
       }
 
-      const { accessToken, refreshToken, userId} = await this.studentService.login(email, password);
-
-      // Get user details for the response
-      const user = await this.studentService.verifyUser(userId);
+      const { accessToken, refreshToken, tutorId} = await this.tutorService.login(email, password);
 
       res.status(200).json({
         message: "Login successful",
-        userId,
+        tutorId,
         accessToken,
         refreshToken,
-        user: user ? {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          mobile: user.mobile,
-          isVerified: user.isVerified,
-          is_blocked: user.is_blocked,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt
-        } : null
       });
     } catch (error: any) {
       console.error("Login Error:", error);
       
       if (error.message.includes("Invalid email")) {
-        res.status(404).json({ error: "User not found" });
+        res.status(404).json({ error: "Tutor not found" });
       } else if (error.message.includes("Invalid password")) {
         res.status(401).json({ error: "Invalid password" });
-      } else if (error.message.includes("User is blocked")) {
+      } else if (error.message.includes("Tutor is blocked")) {
         res.status(403).json({ error: "Account is blocked" });
       } else {
         res.status(500).json({ error: "Internal server error" });
@@ -71,13 +58,13 @@ export default class StudentController implements IStudentController {
         return;
       }
 
-      const user = await this.studentService.verifyUser(decoded.id);
-      if (!user) {
-        res.status(403).json({ message: "User not found" });
+      const tutor = await this.tutorService.verifyUser(decoded.id);
+      if (!tutor) {
+        res.status(403).json({ message: "tutor not found" });
         return;
       }
 
-      const newAccessToken = await this.studentService.renewAccessToken(decoded.id);
+      const newAccessToken = await this.tutorService.renewAccessToken(decoded.id);
       res.status(200).json({
         accessToken: newAccessToken,
         message: "Token refreshed successfully",

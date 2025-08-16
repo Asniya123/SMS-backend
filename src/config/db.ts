@@ -7,9 +7,11 @@ const mongoConnect = async () : Promise<void> => {
         }
 
         await mongoose.connect(process.env.MONGO_URI)
-        console.log('Datase connected')
+        console.log('✅ Database connected successfully')
+        console.log('MongoDB URI:', process.env.MONGO_URI ? 'Set' : 'Not set')
     }catch(error){
-        console.error('Database connection failed', error)
+        console.error('❌ Database connection failed:', error)
+        process.exit(1) // Exit if database connection fails
     }
 }
 

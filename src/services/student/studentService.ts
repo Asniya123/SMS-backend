@@ -36,7 +36,7 @@ class StudentService implements IStudentService {
         throw new Error("Invalid password");
       }
 
-      const accessToken = generateAccessToken(student._id.toString());
+      const accessToken = generateAccessToken(student._id.toString(), 'student');
       const refreshToken = generateRefreshToken(student._id.toString());
 
       return {
